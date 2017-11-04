@@ -92,6 +92,7 @@ class LayerContainer(Layer):
     def __init__(self, name=None):
         super(LayerContainer, self).__init__(name)
         self.is_mklop = True
+        self.global_deltas = None
 
     @property
     def layers_to_optimize(self):
@@ -107,7 +108,7 @@ class LayerContainer(Layer):
 
     @property
     def nest_deltas(self):
-        return False
+        return True
 
     def nested_str(self, level=0):
         """
@@ -280,6 +281,38 @@ class LayerContainer(Layer):
         for l in self.layers:
             if hasattr(l, "accumulate_updates"):
                 l.set_acc_on(acc_on)
+
+    def allocate_deltas(self, global_deltas=None):
+        """
+        pre-allocates space for the shared buffer pool to ensure we get the right sized tensors
+        """
+        if global_deltas is None and self.global_deltas is None:
+            self.global_deltas = global_deltas = DeltasTree()
+        else:
+            if self.global_deltas is None:
+                self.global_deltas = global_deltas
+            else:
+                global_deltas = self.global_deltas
+
+        for layer in self.layers:
+            layer.allocate_deltas(global_deltas)
+
+        global_deltas.allocate_buffers()
+
+    def set_deltas(self, global_deltas):
+        """
+        Set the layer deltas from the shared
+        global deltas pool
+        """
+        if self.global_deltas is None:
+            self.global_deltas = global_deltas
+        global_deltas = self.global_deltas
+
+        for layer in self.layers:
+            layer.allocate_deltas(self.global_deltas)
+
+        for l in self.layers:
+            l.set_deltas(global_deltas)
 
 
 class Sequential(LayerContainer):
@@ -929,7 +962,7 @@ class MergeMultistream(MergeBroadcast):
 
     @property
     def nest_deltas(self):
-        return False
+        return True
 
     def configure(self, in_obj):
         """
