@@ -621,8 +621,10 @@ class Tree(LayerContainer):
         Returns:
             Tensor: deltas to propagate to the adjacent lower layer
         """
+        last_delta = None
         for l, e, a, b in reversed(list(zip(self.layers, error, self.alphas, self.betas))):
-            l.bprop(e, alpha=a, beta=b)
+            last_delta = l.bprop(e, alpha=a, beta=b)
+        return last_delta
 
     def get_terminal(self):
         """

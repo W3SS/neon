@@ -149,7 +149,7 @@ class Layer(NervanaObject):
         if self.next_layer is not None and self.next_layer.parallelism != self.parallelism:
             self.owns_delta = True
 
-        if self.owns_delta and self.prev_layer:
+        if self.owns_delta:
             if type(self.prev_layer) in (BranchNode,):
                 self.deltas = self.prev_layer.deltas
             else:
