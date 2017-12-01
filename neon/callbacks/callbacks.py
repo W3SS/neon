@@ -105,6 +105,8 @@ class Callbacks(NervanaObject):
 
         self.model_file = model_file
 
+        self.sigint = False
+
         if multicost is True:
             self.add_callback(TrainMulticostCallback())
         else:
@@ -267,7 +269,12 @@ class Callbacks(NervanaObject):
             self.model().load_params(self.model_file)
 
         # setup an interrupt handler
-        signal.signal(signal.SIGINT, self.on_sigint_catch)
+        try:
+            signal.signal(signal.SIGINT, self.on_sigint_catch)
+            self.sigint = True
+        except ValueError as v:
+            # this only works on main thread, but everything else works on any
+            pass
 
         for c in self.callbacks:
             c.on_train_begin(self.callback_data, self.model(), epochs)
@@ -276,8 +283,10 @@ class Callbacks(NervanaObject):
         """
         Call all registered callbacks' on_train_end functions.
         """
-        # reset the signal handler
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+        if self.sigint:
+            # reset the signal handler
+            signal.signal(signal.SIGINT, signal.SIG_DFL)
 
         for c in self.callbacks:
             c.on_train_end(self.callback_data, self.model())
