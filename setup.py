@@ -14,11 +14,11 @@
 # limitations under the License.
 # ----------------------------------------------------------------------------
 import os
-from setuptools import setup, find_packages, Command
+from setuptools import setup, find_packages
 import subprocess
 
 # Define version information
-VERSION = '2.3.0'
+VERSION = '2.4.0'
 FULLVERSION = VERSION
 write_version = True
 
@@ -28,8 +28,16 @@ try:
     (so, serr) = pipe.communicate()
     if pipe.returncode == 0:
         FULLVERSION += "+%s" % so.strip().decode("utf-8")
-except:
+except Exception:
     pass
+
+
+try:
+    import pypandoc
+    readme_file = pypandoc.convert('README.md', 'rst') 
+except:
+    readme_file = open('README.md').read()
+
 
 if write_version:
     txt = "# " + ("-" * 77) + "\n"
@@ -60,23 +68,51 @@ if write_version:
     finally:
         a.close()
 
+requirements = [
+    "configargparse",
+    "numpy",
+    "pyyaml",
+    "pep8",
+    "flake8",
+    "funcsigs",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "posix_ipc",
+    "pillow",
+    "pylint",
+    "sphinx",
+    "h5py",
+    "appdirs",
+    "future",
+    "tqdm",
+    "cffi",
+    "filelock",
+    "py-cpuinfo",
+    "pypandoc",
+    "pandoc"
+]
 
-setup(name='neon',
+
+setup(name='nervananeon',
       version=VERSION,
-      description="Nervana's deep learning framework",
-      long_description=open('README.md').read(),
-      author='Nervana Systems',
-      author_email='info@nervanasys.com',
-      url='http://www.nervanasys.com',
+      description="Intel Nervana's deep learning framework",
+      long_description=readme_file,
+      author='Intel Nervana Systems',
+      author_email='intelnervana@intel.com',
+      url='http://www.intelnervana.com',
       license='License :: OSI Approved :: Apache Software License',
       scripts=['bin/neon', 'bin/nvis'],
       packages=find_packages(),
+      install_requires=requirements,
       package_data={'neon': ['backends/kernels/sass/*.sass',
                              'backends/kernels/cubin/*.cubin',
                              'backends/kernels/maxas/*.pl',
                              'backends/kernels/maxas/MaxAs/*.pm',
                              'backends/mklEngine/*.so',
+                             'backends/mklEngine/*.dll',
                              'backends/mklEngine/src/*.header',
+                             '../mklml_lnx_*/lib/*.so',
                              '../loader/bin/*.so']},
       classifiers=['Development Status :: 3 - Alpha',
                    'Environment :: Console',

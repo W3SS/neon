@@ -161,7 +161,7 @@ neon_install:
 
 aeon_install:
 	@echo "Attempting to install optional aeon dataloader..."
-	-@git clone https://github.com/NervanaSystems/aeon.git aeon ; cd aeon && git fetch && git checkout tags/v1.0.0 && mkdir -p build && cd build && rm -rf * && cmake .. && pip install .
+	-@git clone https://github.com/NervanaSystems/aeon.git aeon ; cd aeon && git fetch && git checkout tags/v1.2.0 && mkdir -p build && cd build && rm -rf * && cmake .. && pip install .
 
 sysdeps:
 	@echo "Installing neon dependencies system wide..."
@@ -285,7 +285,7 @@ endif
 
 dist: env
 	@echo "Prepping distribution..."
-	@python setup.py sdist
+	@python setup.py bdist_wheel
 
 release: check dist
 	@echo "Bump version number in setup.py"

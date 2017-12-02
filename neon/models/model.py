@@ -100,7 +100,7 @@ class Model(NervanaObject):
                     lastlayer.transform.set_shortcut(True)
         except (SystemExit, KeyboardInterrupt):
             raise
-        except:
+        except Exception:
             # if any attributes are not set or any other exception
             # is thrown leave transform.shortcut as is (do nothing)
             pass
@@ -233,7 +233,9 @@ class Model(NervanaObject):
         Returns:
             Tensor: the output of the final layer in the model
         """
-        return self.layers.fprop(x, inference)
+        res = self.layers.fprop(x, inference)
+        self.be.convert_data(res, False)
+        return res
 
     def bprop(self, delta):
         """
@@ -245,7 +247,9 @@ class Model(NervanaObject):
         Returns:
             Tensor: Deltas to propagate to the next layer
         """
-        return self.layers.bprop(delta)
+        res = self.layers.bprop(delta)
+        self.be.convert_data(res, False)
+        return res
 
     def eval(self, dataset, metric):
         """
