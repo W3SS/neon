@@ -79,6 +79,8 @@ class ConvLayer(object):
         self.strides = (str_d, str_h, str_w)
         self.dilation = (dil_d, dil_h, dil_w)
 
+        self.tr_scratch = None
+
         self.dimI = (C, D, H, W, N)
         self.dimF = (C, T, R, S, K)
         self.dimO = (K, M, P, Q, N)
@@ -212,7 +214,11 @@ class ConvLayer(object):
 
         if backward:
             # C <=> K and mirror T, R, S  (0, 1, 2, 3, 4) => (4, 1, 2, 3, 0)
-            F = np.transpose(F[:, ::-1, ::-1, ::-1], (4, 1, 2, 3, 0)).copy()
+            if self.tr_scratch is None:
+                self.tr_scratch = np.transpose(F[:, ::-1, ::-1, ::-1], (4, 1, 2, 3, 0)).copy()
+            else:
+                self.tr_scratch[:] = np.transpose(F[:, ::-1, ::-1, ::-1], (4, 1, 2, 3, 0))
+            F = self.tr_scratch
             mSlice, pSlice, qSlice = self.dSlice, self.hSlice, self.wSlice
         else:
             mSlice, pSlice, qSlice = self.mSlice, self.pSlice, self.qSlice

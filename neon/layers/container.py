@@ -903,17 +903,17 @@ class MergeBroadcast(Broadcast):
         # Figure out how to merge
         if self.merge == "recurrent":
             catdims = [xs[1] for xs in in_shapes]
-            self.out_shape = (in_shapes[0][0], sum(catdims))
+            self.out_shape = (int(in_shapes[0][0]), (sum(catdims)))
             stride_size = self.be.bsz
         elif self.merge == "depth":
             catdims = [xs[0] for xs in in_shapes]
-            self.out_shape = (sum(catdims),) + in_shapes[0][1:]
-            stride_size = np.prod(in_shapes[0][1:])
+            self.out_shape = (int(sum(catdims)),) + in_shapes[0][1:]
+            stride_size = int(np.prod(in_shapes[0][1:]))
         elif self.merge == "stack":
-            catdims = [xs if isinstance(xs, int) else np.prod(xs) for xs in in_shapes]
-            self.out_shape = sum(catdims)
+            catdims = [xs if isinstance(xs, int) else int(np.prod(xs)) for xs in in_shapes]
+            self.out_shape = (sum(catdims),)
             stride_size = 1
-        end_idx = [idx * stride_size for idx in np.cumsum(catdims)]
+        end_idx = [int(idx * stride_size) for idx in np.cumsum(catdims)]
         start_idx = [0] + end_idx[:-1]
         self.slices = [slice(s, e) for s, e in zip(start_idx, end_idx)]
 

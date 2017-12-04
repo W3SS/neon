@@ -937,7 +937,7 @@ class NervanaCPU(Backend):
             if C._tensor.flags['C_CONTIGUOUS'] is not True:
                 tmp = np.empty(C.shape, dtype=C.dtype)
                 np.dot(A._tensor, B._tensor, tmp)
-                C._tensor[:] = tmp.copy()
+                C._tensor[:] = tmp
             else:
                 np.dot(A._tensor, B._tensor, C._tensor)
 
