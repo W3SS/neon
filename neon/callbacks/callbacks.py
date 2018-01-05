@@ -1040,9 +1040,9 @@ def get_progress_string(tag, epoch, minibatch, nbatches, cost, time,
     bar_width = int(float(minibatch) / nbatches * max_bar_width)
     if isinstance(cost, np.ndarray):
         s = u'Epoch {:<3} [{} |{:<%s}| {:4}/{:<4} batches, {} costs, {:.2f}s]' % max_bar_width
-        cost = u'({})'.format(u', '.join('{:.2f}'.format(c) for c in cost))
+        cost = u'({})'.format(u', '.join('{:.4f}'.format(c) for c in cost))
     else:
-        s = u'Epoch {:<3} [{} |{:<%s}| {:4}/{:<4} batches, {:.2f} cost, {:.2f}s]' % max_bar_width
+        s = u'Epoch {:<3} [{} |{:<%s}| {:4}/{:<4} batches, {:.4f} cost, {:.2f}s]' % max_bar_width
     return s.format(epoch, tag, blockchar * bar_width, minibatch, nbatches, cost, time)
 
 
@@ -1115,7 +1115,7 @@ class ProgressBarCallback(Callback):
         """
         _eil = self._get_cached_epoch_loss(callback_data, model, epoch, 'loss')
         if _eil:
-            progress_string = " [%s %.2f, %.2fs]" % (_eil['costnm'], _eil['cost'], _eil['time'])
+            progress_string = " [%s %.4f, %.2fs]" % (_eil['costnm'], _eil['cost'], _eil['time'])
             sys.stdout.write(progress_string)
             sys.stdout.flush()
         sys.stdout.write('\n')
